@@ -7,11 +7,14 @@ import Web3 from "web3";
 
 import Emojify from "react-emojione";
 
-const donationNetworkID = 1; // make sure donations only go through on this network.
-
 // const donationAddress = "0xf7050c2908b6c1ccdfb2a44b87853bcc3345e3b3"; //replace with the address to watch
-const donationAddress = "0xaf24Ba021B3e8D3a13b4691a2B0828dCd811545E"
+const donationAddress = "0xf7050c2908b6c1ccdfb2a44b87853bcc3345e3b3"
 const apiKey = "SC1H6JHAK19WC1D3BGV3JWIFD983E7BS58"; //replace with your own key
+
+const SNTaddress = '0x744d70FDBE2Ba4CF95131626614a1763DF805B9E';
+const DAIaddress = '0x89d24A6b4CcB1B6fAA2625fE562bDD9a23260359';
+
+const MakerOracle = '0x729D19f657BD0614b4985Cf1D82531c67569197B';
 
 const etherscanApiLinks = {
   extTx:
@@ -24,12 +27,28 @@ const etherscanApiLinks = {
     donationAddress +
     "&startblock=0&endblock=99999999&sort=asc&apikey=" +
     apiKey,
+  SNTbalance:
+    "https://api.etherscan.io/api?module=account&action=tokenbalance&contractaddress=" + 
+    SNTaddress +
+    "&address=" + 
+    donationAddress + 
+    "&tag=latest&apikey=" +
+    apiKey,
+  DAIbalance:
+    "https://api.etherscan.io/api?module=account&action=tokenbalance&contractaddress=" + 
+    DAIaddress +
+    "&address=" + 
+    donationAddress + 
+    "&tag=latest&apikey=" +
+    apiKey,
 };
+
+const oracleABI = [{"constant":true,"inputs":[],"name":"peek","outputs":[{"name":"","type":"bytes32"},{"name":"","type":"bool"}],"payable":false,"type":"function"}]
 
 const isSearched = searchTerm => item =>
   item.from.toLowerCase().includes(searchTerm.toLowerCase());
 
-var myweb3;
+var myweb3 = new Web3();
 
 class App extends Component {
   constructor(props) {
@@ -40,7 +59,10 @@ class App extends Component {
       searchTerm: "",
       donateenabled: true,
       socketconnected: false,
-      totalAmount: 0
+      totalAmount: 0,
+      SNTtotal: 0,
+      DAItotal: 0,
+      USDtotal: 0
     };
   }
 
@@ -48,69 +70,6 @@ class App extends Component {
     this.setState({
       searchTerm: event.target.value
     });
-  };
-
-  subscribe = address => {
-    let ws = new WebSocket("wss://socket.etherscan.io/wshandler");
-
-    function pinger(ws) {
-      var timer = setInterval(function() {
-        if (ws.readyState === 1) {
-          ws.send(
-            JSON.stringify({
-              event: "ping"
-            })
-          );
-        }
-      }, 20000);
-      return {
-        stop: function() {
-          clearInterval(timer);
-        }
-      };
-    }
-
-    ws.onopen = function() {
-      this.setState({
-        socketconnected: true
-      });
-      pinger(ws);
-      ws.send(
-        JSON.stringify({
-          event: "txlist",
-          address: address
-        })
-      );
-    }.bind(this);
-    ws.onmessage = function(evt) {
-      let eventData = JSON.parse(evt.data);
-      console.log(eventData);
-      if (eventData.event === "txlist") {
-        let newTransactionsArray = this.state.transactionsArray.concat(
-          eventData.result
-        );
-        this.setState(
-          {
-            transactionsArray: newTransactionsArray
-          },
-          () => {
-            this.processEthList(newTransactionsArray);
-          }
-        );
-      }
-    }.bind(this);
-    ws.onerror = function(evt) {
-      this.setState({
-        socketerror: evt.message,
-        socketconnected: false
-      });
-    }.bind(this);
-    ws.onclose = function() {
-      this.setState({
-        socketerror: "socket closed",
-        socketconnected: false
-      });
-    }.bind(this);
   };
 
   getAccountData = () => {
@@ -127,57 +86,54 @@ class App extends Component {
       });
   };
 
-  handleDonate = event => {
-    event.preventDefault();
-    const form = event.target;
-    let donateWei = new myweb3.utils.BN(
-      myweb3.utils.toWei(form.elements["amount"].value, "ether")
-    );
-    let message = myweb3.utils.toHex(form.elements["message"].value);
-    let extraGas = form.elements["message"].value.length * 68;
-
-    myweb3.eth.net.getId().then(netId => {
-      switch (netId) {
-        case 1:
-          console.log("Metamask is on mainnet");
-          break;
-        case 2:
-          console.log("Metamask is on the deprecated Morden test network.");
-          break;
-        case 3:
-          console.log("Metamask is on the ropsten test network.");
-          break;
-        case 4:
-          console.log("Metamask is on the Rinkeby test network.");
-          break;
-        case 42:
-          console.log("Metamask is on the Kovan test network.");
-          break;
-        default:
-          console.log("Metamask is on an unknown network.");
-      }
-      if (netId === donationNetworkID) {
-        return myweb3.eth.getAccounts().then(accounts => {
-          return myweb3.eth
-            .sendTransaction({
-              from: accounts[0],
-              to: donationAddress,
-              value: donateWei,
-              gas: 150000 + extraGas,
-              data: message
-            })
-            .catch(e => {
-              console.log(e);
-            });
-        });
-      } else {
-        console.log("no donation allowed on this network");
+  getTokenData = () => {
+    let fetchTokenCalls = [
+      fetch(`${etherscanApiLinks.SNTbalance}`),
+      fetch(`${etherscanApiLinks.DAIbalance}`),
+    ];
+    return Promise.all(fetchTokenCalls)
+      .then(res => {
+        return Promise.all(res.map(apiCall => apiCall.json()));
+      })
+      .then(responseJson => {
+        let token_balances = responseJson.map(res => res.result);
+        let _SNTtotal = token_balances[0];
+        let _DAItotal = token_balances[1];
         this.setState({
-          donateenabled: false
-        });
-      }
-    });
-  };
+          SNTtotal: _SNTtotal,
+          DAItotal: _DAItotal
+        })
+      })
+  }
+
+  getOracleData = () => {
+    if (window.web3) {
+      window.myweb3 = new Web3(window.web3.currentProvider);
+    }
+    // Non-dapp browsers...
+    else {
+      this.setState({
+        USDtotal: 'Unavailable'
+      })
+    }
+    // Get Oracle contract instance
+    let contract = new window.myweb3.eth.Contract(oracleABI, MakerOracle);
+    // call transfer function
+    return contract.methods.peek().call()
+      .then(res => {
+        if (res[1]) {
+          let usd = window.myweb3.utils.toAscii(res[0]);
+          let _USDtotal = usd * this.state.totalAmount;
+          this.setState({
+            USDtotal: usd
+          })
+        } else {
+          this.setState({
+            USDtotal: "Oracle False"
+          })
+        }
+      });
+  }
 
   processEthList = ethlist => {
     // let totalAmount = new myweb3.utils.BN(0);
@@ -236,22 +192,6 @@ class App extends Component {
   };
 
   componentDidMount = () => {
-    if (
-      typeof window.web3 !== "undefined" &&
-      typeof window.web3.currentProvider !== "undefined"
-    ) {
-      myweb3 = new Web3(window.web3.currentProvider);
-      myweb3.eth.defaultAccount = window.web3.eth.defaultAccount;
-      this.setState({
-        candonate: true
-      });
-    } else {
-      // I cannot do transactions now.
-      this.setState({
-        candonate: false
-      });
-      myweb3 = new Web3();
-    }
 
     this.getAccountData().then(res => {
       this.setState(
@@ -259,16 +199,16 @@ class App extends Component {
           transactionsArray: res
         },
         () => {
-          console.log(res)
           this.processEthList(res);
-          this.subscribe(donationAddress);
         }
       );
     });
+
+    this.getTokenData();
+    this.getOracleData();
   };
 
   render = () => {
-    const candonate = this.state.candonate;
 
     const responsiveness = css({
       "@media(max-width: 700px)": {
@@ -276,25 +216,20 @@ class App extends Component {
       }
     });
 
-    const hiddenOnMobile = css({
-      "@media(max-width: 700px)": {
-        display: "none"
-      }
-    });
-
     return (
       <div className="App container-fluid">
-        <div
-          {...responsiveness}
-          className="flex-row d-flex justify-content-around"
-        >
+        <div {...responsiveness} className="flex-row d-flex justify-content-around">
           <div className="flex-column introColumn">
-            
-
             <div {...responsiveness} className="flex-row d-flex amount">
               <div className="flex-column margin">
-                <strong>Amount donated </strong>
-                <h3>{this.state.totalAmount} ETH</h3>
+                <h3>Amount donated </h3>
+                <div className="clear"></div>
+                <ul>
+                  <li>{this.state.totalAmount} ETH</li>
+                  <li>{this.state.SNTtotal} SNT </li>
+                  <li>{this.state.DAItotal} DAI</li>   
+                </ul>
+                <h3>{this.state.USDtotal} USD</h3> 
               </div>
               <div className="flex-column margin">
                 <form className="Search">
@@ -307,42 +242,6 @@ class App extends Component {
               </div>
             </div>
           </div>
-
-          {/* <div className="flex-column donationColumn">
-            <img src="/img/ways-to-donate.svg" className="typelogo img-fluid" />
-            {candonate ? (
-              <div className="donation">
-                <h4 {...hiddenOnMobile}>
-                  {`Publicly: Send a transaction via `}
-                  <a href="https://metamask.io">Metamask</a>
-                  {` with your name (or something else) as a message `} 
-                </h4>
-                <h4>
-                  All donations with the same address will be added together.
-                </h4>
-
-                <form {...hiddenOnMobile} onSubmit={this.handleDonate}>
-                  <input
-                    type="text"
-                    placeholder="ETH to donate"
-                    name="amount"
-                  />
-                  <input type="text" placeholder="message" name="message" />
-                  <button className="btn btn-primary donation-button">Send</button>
-                </form>
-              </div>
-            ) : (
-              <br />
-            )}
-            <p>NOTE: The Message field is pulled from the latest transaction.  Sending zero-value transactions will update the field</p>
-            <hr />
-            <h4>Privately: Send directly to the donation address</h4>
-            <img src="/img/Address-QR.png" className="qr-code" />
-            <div className="word-wrap">
-              <strong>{donationAddress}</strong>
-            </div>
-            <hr />
-          </div> */}
         </div>
 
         <div className="flex-column leaderboard">
