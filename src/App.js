@@ -9,8 +9,8 @@ import Emojify from "react-emojione";
 
 const donationNetworkID = 1; // make sure donations only go through on this network.
 
-const donationAddress = "0x5adf43dd006c6c36506e2b2dfa352e60002d22dc"; //replace with the address to watch
-const apiKey = "6DIUB7X6S92YJR6KXKF8V8ZU55IXT5PN2S"; //replace with your own key
+const donationAddress = "0xc31fcE79a354E027F49501C609cF3BD3B12cEAE7"; //replace with the address to watch
+const apiKey = "SC1H6JHAK19WC1D3BGV3JWIFD983E7BS58"; //replace with your own key
 
 const etherscanApiLinks = {
   extTx:
@@ -288,45 +288,39 @@ class App extends Component {
         >
           <div className="flex-column introColumn">
             <img
-              src="/img/placeholder-banner.svg"
+              src="/img/supports.pngc"
               className="typelogo img-fluid"
               alt="Banner Placeholder"
             />
             <div className="introContainer">
-              <h1>Donation Leaderboard</h1>
-              <p>To deploy your own leaderboard:</p>
-              <ol>
-                <li>
-                  1 - Star and fork the
-                  <a href="https://github.com/giveth/donation-leaderboard">
-                    {" "}
-                    Donation Leaderboard on GitHub/Giveth
-                  </a>
-                  on your own repository
-                </li>
-                <li>
-                  2 - Get your own API key from{" "}
-                  <a href="https://etherscan.io">etherscan.io</a>
-                </li>
-                <li>
-                  3 - Change the <strong>donationAddress</strong> and{" "}
-                  <strong>apiKey</strong> variables in your /src/App.js file
-                </li>
-                <li>
-                  4 - Replace placeholder images for <strong>banner</strong> and{" "}
-                  <strong>QR code</strong> in public/img and also in your
-                  /src/App.js file
-                </li>
-              </ol>
+              <h1>Ellicott City Flood Donation Leaderboard</h1>
               <h4>
-                {`Made with <3 by the Unicorns at `}
-                <a href="https://giveth.io">Giveth</a>
+                The Bitcoin Podcast Network wants to help the victims of the recent Ellicott City flood, and needs your help to do it.
               </h4>
-              <p>
-                This page uses the Giveth Donation address. By donating you
-                support open source projects like this one.{" "}
-                <a href="https://giveth.io/donate/">More Info</a>
-              </p>
+              <h4>
+                {`For those that are unaware, on Sunday, May 27, 2018, Historic Ellicott City experienced another devastating flood that destroyed many local businesses and patron's property.  A quick `}
+                <a href="https://www.youtube.com/results?search_query=ellicott+city+flood"> youtube search</a>
+                {` will reveal the carnage that started within minutes.`} 
+              </h4>
+              <h4>
+                We're asking you to give what you can, and put yourself on the leaderboard of contributors.  Help Ellicott City get back on its feet.
+              </h4>
+              <h4>
+                {`All funds will go to the `}
+                <a href="https://cfhoco.org/">Community Foundation of Howard County</a>
+                {` relief fund.  If you feel more comfortable donating directly through their website, then please do.  This leaderboard is an attempt to let the crypto community contribute directly.`}
+              </h4>
+              <hr/>
+              <h6>
+                Funds disbursement will be handled by Corey Petty on behalf of The Bitcion Podcast Network. He previously lived within walking distance of the flood path, and personally knows many who have suffered from this disaster.
+              </h6>
+              <h6>
+                {`Forked with <3 from the Unicorns at `}
+                <a href="https://giveth.io">Giveth</a>
+              </h6>
+              <h6>
+                NOTE: ERC20 tokens will be accepted but will not show up on the leaderboard.
+              </h6>
             </div>
 
             <div {...responsiveness} className="flex-row d-flex amount">
@@ -349,10 +343,13 @@ class App extends Component {
           <div className="flex-column donationColumn">
             <img src="/img/ways-to-donate.svg" className="typelogo img-fluid" />
             {candonate ? (
-              <div>
+              <div className="donation">
                 <h4 {...hiddenOnMobile}>
-                  Publicly: Send a transaction via Metamask with your Team Name
+                  Publicly: Send a transaction via Metamask with your name (or something else)
                   as a message{" "}
+                </h4>
+                <h4>
+                  All donations with the same address will be added together.
                 </h4>
 
                 <form {...hiddenOnMobile} onSubmit={this.handleDonate}>
@@ -362,7 +359,7 @@ class App extends Component {
                     name="amount"
                   />
                   <input type="text" placeholder="message" name="message" />
-                  <button className="btn btn-primary">Send</button>
+                  <button className="btn btn-primary donation-button">Send</button>
                 </form>
               </div>
             ) : (
@@ -370,7 +367,7 @@ class App extends Component {
             )}
             <hr />
             <h4>Privately: Send directly to the donation address</h4>
-            <img src="/img/placeholder-qr.svg" className="qr-code" />
+            <img src="/img/Address-QR.png" className="qr-code" />
             <div className="word-wrap">
               <strong>{donationAddress}</strong>
             </div>
