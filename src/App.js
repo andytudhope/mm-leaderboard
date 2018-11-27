@@ -87,6 +87,7 @@ class App extends Component {
   };
 
   getTokenData = () => {
+    let token_decimals = Math.pow(10, -18);
     let fetchTokenCalls = [
       fetch(`${etherscanApiLinks.SNTbalance}`),
       fetch(`${etherscanApiLinks.DAIbalance}`),
@@ -97,8 +98,8 @@ class App extends Component {
       })
       .then(responseJson => {
         let token_balances = responseJson.map(res => res.result);
-        let _SNTtotal = token_balances[0];
-        let _DAItotal = token_balances[1];
+        let _SNTtotal = token_balances[0] * token_decimals;
+        let _DAItotal = token_balances[1] * token_decimals;
         this.setState({
           SNTtotal: _SNTtotal,
           DAItotal: _DAItotal
