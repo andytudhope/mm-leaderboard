@@ -2,6 +2,7 @@
   "name": "donation-leaderboard",
   "version": "0.2.0",
   "private": true,
+  "homepage": "./",
   "dependencies": {
     "glamor": "^2.20.40",
     "react": "^16.2.0",
@@ -12,7 +13,7 @@
     "web3": "1.0.0-beta.30"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "PORT=3002 react-scripts start -p 3002",
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"

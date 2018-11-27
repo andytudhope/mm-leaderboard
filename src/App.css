@@ -1,18 +1,33 @@
 * {
-  font-family: Roboto, Arial, sans-serif;
+  font-family: "Inter UI", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
 }
 
 div {
-  background-image: url("./img/pattern_17.png");
+  background-color: rgba(238, 242, 245, 1);
 }
 
 a {
-  color: #ef690c;
+  color: #3463d9;
   text-decoration: underline;
 }
 
+.event-table {
+  text-align: left;
+  display: inline-block;
+  text-align: left;
+
+}
+
+.signup-table {
+  display: inline-block;
+}
+
+td {
+  padding-right: 10px;
+}
+
 th {
-  color: #ef690c;
+  color: #3463d9;
 }
 
 form {
@@ -28,7 +43,7 @@ h1 {
 
 h1, h2 {
   padding: 1rem;
-  font-family: Roboto, Arial, sans-serif;
+  font-family: "Inter UI", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
   font-weight: 200;
   text-align: center;
 }
@@ -36,12 +51,12 @@ h1, h2 {
 h3 {
   font-weight: 600;
   font-size: 2rem;
-  color: #ef690c;
+  color: #3463d9;
 }
 
 h4, h5, h6 {
   padding: 0.5rem;
-  font-family: Roboto, Arial, sans-serif;
+  font-family: "Inter UI", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
   font-weight: 200;
   text-align: center;
 }
@@ -70,7 +85,7 @@ ol {
 }
 
 thead {
-    background-color: #383838;
+    background-color: white;
 }
 
 .App {
@@ -96,7 +111,7 @@ thead {
 }
 
 .container-fluid {
-  background-color: white;
+  background-color: rgba(238, 242, 245, 1);
   padding: 0px;
   margin: 0px;
   max-width: 99vw;
@@ -112,7 +127,7 @@ thead {
 }
 
 .Entry {
-  background-color: rgba(255, 255, 255, 0.80);
+  background-color: white;
 }
 
 .Search {
@@ -135,8 +150,8 @@ thead {
 }
 
 .donationColumn {
-  background: #383838;
-  background-color: #383838;
+  background: white;
+  background-color: white;
   color: white;
   justify-content: center;
   text-align: center;
@@ -148,6 +163,12 @@ thead {
 
 .introContainer {
   padding-bottom: 5rem;
+}
+ 
+img {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .leaderboard {
@@ -171,11 +192,11 @@ thead {
   font-weight: 500;
   color: #ef690c;
   text-overflow: clip;
-  background: #383838;
+  background: white;
 }
 
 .donation {
-  background: #383838;
+  background: white;
 }
 
 .donation-button {

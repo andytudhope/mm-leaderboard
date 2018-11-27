@@ -9,7 +9,8 @@ import Emojify from "react-emojione";
 
 const donationNetworkID = 1; // make sure donations only go through on this network.
 
-const donationAddress = "0xc31fcE79a354E027F49501C609cF3BD3B12cEAE7"; //replace with the address to watch
+// const donationAddress = "0xf7050c2908b6c1ccdfb2a44b87853bcc3345e3b3"; //replace with the address to watch
+const donationAddress = "0xaf24Ba021B3e8D3a13b4691a2B0828dCd811545E"
 const apiKey = "SC1H6JHAK19WC1D3BGV3JWIFD983E7BS58"; //replace with your own key
 
 const etherscanApiLinks = {
@@ -22,7 +23,7 @@ const etherscanApiLinks = {
     "https://api.etherscan.io/api?module=account&action=txlist&address=" +
     donationAddress +
     "&startblock=0&endblock=99999999&sort=asc&apikey=" +
-    apiKey
+    apiKey,
 };
 
 const isSearched = searchTerm => item =>
@@ -115,7 +116,7 @@ class App extends Component {
   getAccountData = () => {
     let fetchCalls = [
       fetch(`${etherscanApiLinks.extTx}`),
-      fetch(`${etherscanApiLinks.intTx}`)
+      fetch(`${etherscanApiLinks.intTx}`),
     ];
     return Promise.all(fetchCalls)
       .then(res => {
@@ -185,16 +186,16 @@ class App extends Component {
         obj.value = new myweb3.utils.BN(obj.value); // convert string to BigNumber
         return obj;
       })
-      .filter(obj => {
-        return obj.value.cmp(new myweb3.utils.BN(0));
-      }) // filter out zero-value transactions
+      // .filter(obj => {
+      //   return obj.value.cmp(new myweb3.utils.BN(0));
+      // }) // filter out zero-value transactions
       .reduce((acc, cur) => {
         // group by address and sum tx value
-        if (cur.isError !== "0") {
-          // tx was not successful - skip it.
-          return acc;
-        }
-        if (cur.from === donationAddress) {
+        // if (cur.isError !== "0") {
+        //   // tx was not successful - skip it.
+        //   return acc;
+        // }
+        if (cur.from === donationAddress.toLowerCase()) {
           // tx was outgoing - don't add it in
           return acc;
         }
@@ -258,6 +259,7 @@ class App extends Component {
           transactionsArray: res
         },
         () => {
+          console.log(res)
           this.processEthList(res);
           this.subscribe(donationAddress);
         }
@@ -287,41 +289,7 @@ class App extends Component {
           className="flex-row d-flex justify-content-around"
         >
           <div className="flex-column introColumn">
-            <img
-              src="/img/supports.pngc"
-              className="typelogo img-fluid"
-              alt="Banner Placeholder"
-            />
-            <div className="introContainer">
-              <h1>Ellicott City Flood Donation Leaderboard</h1>
-              <h4>
-                The Bitcoin Podcast Network wants to help the victims of the recent Ellicott City flood, and needs your help to do it.
-              </h4>
-              <h4>
-                {`For those that are unaware, on Sunday, May 27, 2018, Historic Ellicott City experienced another devastating flood that destroyed many local businesses and patron's property.  A quick `}
-                <a href="https://www.youtube.com/results?search_query=ellicott+city+flood"> youtube search</a>
-                {` will reveal the carnage that started within minutes.`} 
-              </h4>
-              <h4>
-                We're asking you to give what you can, and put yourself on the leaderboard of contributors.  Help Ellicott City get back on its feet.
-              </h4>
-              <h4>
-                {`All funds will go to the `}
-                <a href="https://cfhoco.org/">Community Foundation of Howard County</a>
-                {` relief fund.  If you feel more comfortable donating directly through their website, then please do.  This leaderboard is an attempt to let the crypto community contribute directly.`}
-              </h4>
-              <hr/>
-              <h6>
-                Funds disbursement will be handled by Corey Petty on behalf of The Bitcion Podcast Network. He previously lived within walking distance of the flood path, and personally knows many who have suffered from this disaster.
-              </h6>
-              <h6>
-                {`Forked with <3 from the Unicorns at `}
-                <a href="https://giveth.io">Giveth</a>
-              </h6>
-              <h6>
-                NOTE: ERC20 tokens will be accepted but will not show up on the leaderboard.
-              </h6>
-            </div>
+            
 
             <div {...responsiveness} className="flex-row d-flex amount">
               <div className="flex-column margin">
@@ -340,13 +308,14 @@ class App extends Component {
             </div>
           </div>
 
-          <div className="flex-column donationColumn">
+          {/* <div className="flex-column donationColumn">
             <img src="/img/ways-to-donate.svg" className="typelogo img-fluid" />
             {candonate ? (
               <div className="donation">
                 <h4 {...hiddenOnMobile}>
-                  Publicly: Send a transaction via Metamask with your name (or something else)
-                  as a message{" "}
+                  {`Publicly: Send a transaction via `}
+                  <a href="https://metamask.io">Metamask</a>
+                  {` with your name (or something else) as a message `} 
                 </h4>
                 <h4>
                   All donations with the same address will be added together.
@@ -365,13 +334,15 @@ class App extends Component {
             ) : (
               <br />
             )}
+            <p>NOTE: The Message field is pulled from the latest transaction.  Sending zero-value transactions will update the field</p>
             <hr />
             <h4>Privately: Send directly to the donation address</h4>
             <img src="/img/Address-QR.png" className="qr-code" />
             <div className="word-wrap">
               <strong>{donationAddress}</strong>
             </div>
-          </div>
+            <hr />
+          </div> */}
         </div>
 
         <div className="flex-column leaderboard">
