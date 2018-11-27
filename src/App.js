@@ -121,11 +121,12 @@ class App extends Component {
     // call transfer function
     return contract.methods.peek().call()
       .then(res => {
+        console.log(res)
         if (res[1]) {
-          let usd = window.myweb3.utils.toAscii(res[0]);
+          let usd = parseFloat(window.myweb3.utils.fromWei(parseInt(res[0]).toString(), 'ether'))
           let _USDtotal = usd * this.state.totalAmount;
           this.setState({
-            USDtotal: usd
+            USDtotal: _USDtotal
           })
         } else {
           this.setState({
@@ -229,7 +230,7 @@ class App extends Component {
                   <li>{this.state.SNTtotal} SNT </li>
                   <li>{this.state.DAItotal} DAI</li>   
                 </ul>
-                <h3>{this.state.USDtotal} USD</h3> 
+                <h5>{this.state.USDtotal} USD</h5> 
               </div>
               <div className="flex-column margin">
                 <form className="Search">
