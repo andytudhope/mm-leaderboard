@@ -112,9 +112,7 @@ class App extends Component {
     }
     // Non-dapp browsers...
     else {
-      this.setState({
-        USDtotal: 'Unavailable'
-      })
+      window.myweb3 = new Web3();
     }
     // Get Oracle contract instance
     let contract = new window.myweb3.eth.Contract(oracleABI, MakerOracle);
