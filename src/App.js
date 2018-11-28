@@ -144,15 +144,19 @@ class App extends Component {
       //   return obj.value.cmp(new myweb3.utils.BN(0));
       // }) // filter out zero-value transactions
       .reduce((acc, cur) => {
-        // group by address and sum tx value
-        // if (cur.isError !== "0") {
-        //   // tx was not successful - skip it.
-        //   return acc;
-        // }
+        if (cur.isError !== "0") {
+          // tx was not successful - skip it.
+          return acc;
+        }
+        if (cur.type && cur.type === "create") {
+          // this is the create tx - skip it
+          return acc;
+        }
         if (cur.from === donationAddress.toLowerCase()) {
           // tx was outgoing - don't add it in
           return acc;
         }
+        // group by address and sum tx value
         if (typeof acc[cur.from] === "undefined") {
           acc[cur.from] = {
             from: cur.from,
@@ -272,6 +276,8 @@ class App extends Component {
                         <a
                           key={index}
                           href={"https://etherscan.io/tx/" + txHash}
+                          target="_blank"
+                          rel="noopener noreferrer"
                         >
                           [{index + 1}]
                         </a>
