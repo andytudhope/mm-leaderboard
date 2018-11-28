@@ -276,6 +276,8 @@ class App extends Component {
                         <a
                           key={index}
                           href={"https://etherscan.io/tx/" + txHash}
+                          target="_blank"
+                          rel="noopener noreferrer"
                         >
                           [{index + 1}]
                         </a>
