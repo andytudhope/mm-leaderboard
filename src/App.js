@@ -206,8 +206,12 @@ class App extends Component {
                   <li>{weiToFixed(this.state.SNTtotal.toString())} SNT </li>
                   <li>{weiToFixed(this.state.DAItotal.toString())} DAI</li>
                 </ul>
-                <h5>{this.state.USDETHValue} USD/ETH Rate</h5>
-                <h5>{this.state.USDSNTValue} USD/SNT Rate</h5>
+                <h5>
+                  {parseFloat(this.state.USDETHValue).toFixed(2)} USD/ETH Rate
+                </h5>
+                <h5>
+                  {parseFloat(this.state.USDSNTValue).toFixed(4)} USD/SNT Rate
+                </h5>
               </div>
               <div className="flex-column margin">
                 <form className="Search">
