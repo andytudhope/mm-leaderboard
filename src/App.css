@@ -174,9 +174,9 @@ li {
 .donation-row {
   background-color: #fff;
   width: 95%;
-  margin: 10px auto;
-  border: #ef0c45 1px solid;
-  border-radius: 5px;
+  margin: 0 auto;
+  padding: 5px;
+  border-bottom: #000 1px solid;
 }
 
 .message {

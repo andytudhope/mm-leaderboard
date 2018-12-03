@@ -5,8 +5,6 @@ import { css } from "glamor";
 
 import Web3 from "web3";
 
-import Emojify from "react-emojione";
-
 var myweb3 = new Web3();
 window.web3 = myweb3
 
