@@ -47,7 +47,7 @@ const isSearched = searchTerm => item =>
 
 const jsonFetch = url => fetch(url).then(res => res.json())
 const bytes32ToAddress = x => myweb3.utils.toChecksumAddress(x.substr(26))
-const weiToFixed = (value, decimals = 2) => parseFloat(myweb3.utils.fromWei(value)).toFixed(decimals)
+const weiToFixed = (value, decimals = 2) => parseFloat(myweb3.utils.fromWei(value.toString())).toFixed(decimals)
 
 class App extends Component {
   constructor(props) {
@@ -136,10 +136,14 @@ class App extends Component {
       if (cur.input) {
         acc[cur.from].input = cur.input
       }
-      // Nasty, but works
-      const eth = myweb3.utils.fromWei(acc[cur.from].ethValue)
-      const snt = myweb3.utils.fromWei(acc[cur.from].sntValue)
-      const dai = myweb3.utils.fromWei(acc[cur.from].daiValue)
+      // Nasty, but works - must pass as string or BN to `fromWei` to avoid precision errors
+      const eth_string = acc[cur.from].ethValue.toString()
+      const snt_string = acc[cur.from].sntValue.toString()
+      const dai_string = acc[cur.from].daiValue.toString()
+
+      const eth = myweb3.utils.fromWei(eth_string)
+      const snt = myweb3.utils.fromWei(snt_string)
+      const dai = myweb3.utils.fromWei(dai_string)
       acc[cur.from].usdValue = (parseFloat(eth) * ethusd) + (parseFloat(snt) * sntusd) + parseFloat(dai)
       return acc
     },{})
@@ -204,12 +208,12 @@ class App extends Component {
                   <li>{weiToFixed(this.state.SNTtotal.toString())} SNT </li>
                   <li>{weiToFixed(this.state.DAItotal.toString())} DAI</li>
                 </ul>
-                <h5>
+                <h6>
                   {parseFloat(this.state.USDETHValue).toFixed(2)} USD/ETH Rate
-                </h5>
-                <h5>
+                </h6>
+                <h6>
                   {parseFloat(this.state.USDSNTValue).toFixed(4)} USD/SNT Rate
-                </h5>
+                </h6>
               </div>
               <div className="flex-column margin">
                 <form className="Search">
