@@ -171,3 +171,24 @@ li {
   padding: 10px 20px;
 }
 
+.donation-row {
+  background-color: #fff;
+  width: 95%;
+  margin: 10px auto;
+  border: #ef0c45 1px solid;
+  border-radius: 5px;
+}
+
+.message {
+  font-family: 'Mountains of Christmas', cursive;
+  font-size: 26px;
+}
+
+.rank {
+  padding-left: 10px;
+  padding-top: 10px;
+  float: left;
+  background-color: #fff;
+  font-size: 26px;
+  vertical-align: middle;
+}
