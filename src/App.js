@@ -8,11 +8,9 @@ import Web3 from "web3";
 var myweb3 = new Web3();
 window.web3 = myweb3
 
-// const donationAddress = "0xf7050c2908b6c1ccdfb2a44b87853bcc3345e3b3"; //replace with the address to watch
-const donationAddress = "0xf7050c2908b6c1ccdfb2a44b87853bcc3345e3b3"
-const apiKey = "SC1H6JHAK19WC1D3BGV3JWIFD983E7BS58"; //replace with your own key
+const donationAddress = "0xd927aC955e44273C4a55c65B84D5b5b752d9F5C6"
+const apiKey = "38BVA9GPQ7V58SYK2FK4KM9MJ3B8DPWVHJ"; //replace with your own key
 
-const SNTaddress = '0x744d70FDBE2Ba4CF95131626614a1763DF805B9E';
 const DAIaddress = '0x89d24A6b4CcB1B6fAA2625fE562bDD9a23260359';
 const MakerOracle = '0x729D19f657BD0614b4985Cf1D82531c67569197B';
 
@@ -28,17 +26,11 @@ const etherscanApiLinks = {
     "https://api.etherscan.io/api?module=proxy&action=eth_call&to=" +
     MakerOracle + "&data=0x59e02dd7&tag=latest&apikey=" +
     apiKey,
-  SNTtxs:
-    "https://api.etherscan.io/api?module=logs&action=getLogs&fromBlock=" + startBlock + "&toBlock=latest&address=" +
-    SNTaddress + 
-    "&topic0=0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef&" +
-    "topic2=" + myweb3.eth.abi.encodeParameter('uint256', donationAddress) + "&apikey" +
-    apiKey,
   DAItxs:
     "https://api.etherscan.io/api?module=logs&action=getLogs&fromBlock=" + startBlock + "&toBlock=latest&address=" +
     DAIaddress + 
     "&topic0=0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef&" +
-    "topic2=" + myweb3.eth.abi.encodeParameter('uint256', donationAddress) + "&apikey" +
+    "topic1=" + myweb3.eth.abi.encodeParameter('uint256', donationAddress) + "&apikey=" +
     apiKey,
 };
 
@@ -52,17 +44,15 @@ const weiToFixed = (value, decimals = 2) => parseFloat(myweb3.utils.fromWei(valu
 class App extends Component {
   constructor(props) {
     super(props);
-
+    
     this.state = {
       all: [],
       searchTerm: "",
       donateenabled: true,
       socketconnected: false,
       ETHtotal: 0,
-      SNTtotal: 0,
       DAItotal: 0,
-      USDETHValue: 0,
-      USDSNTValue: 0
+      USDETHValue: 0
     };
   }
 
@@ -75,13 +65,11 @@ class App extends Component {
   getAccountData = async () => {
     let fetchCalls = [
       jsonFetch(`${etherscanApiLinks.intTx}`),
-      jsonFetch(`${etherscanApiLinks.SNTtxs}`),
       jsonFetch(`${etherscanApiLinks.DAItxs}`),
     ];
     const responseJson = await Promise.all(fetchCalls);
     
     const ethusd = this.state.USDETHValue;
-    const sntusd = this.state.USDSNTValue;
     
     const eth = responseJson[0].result
     .filter(x => x.txreceipt_status !== "0")
@@ -94,18 +82,7 @@ class App extends Component {
         type: 'ETH'
       }
     })
-    const snt = responseJson[1].result
-    .filter(x => x.txreceipt_status !== "0")
-    .map(x => {
-      return {
-        from: bytes32ToAddress(x.topics[1]),
-        hash: x.transactionHash,
-        input: "",
-        value: myweb3.utils.toBN(x.data).toString(),
-        type: 'SNT'
-      }
-    })
-    const dai = responseJson[2].result
+    const dai = responseJson[1].result
     .filter(x => x.txreceipt_status !== "0")
     .map(x => {
       return {
@@ -117,13 +94,12 @@ class App extends Component {
       }
     })
 
-    let all = [].concat(eth, snt, dai).reduce((acc, cur) => {
+    let all = [].concat(eth, dai).reduce((acc, cur) => {
       if (typeof acc[cur.from] === "undefined") {
         acc[cur.from] = {
           from: cur.from,
           input: "",
           ethValue: new myweb3.utils.BN(0),
-          sntValue: new myweb3.utils.BN(0),
           daiValue: new myweb3.utils.BN(0),
           usdValue: 0,
           hash: []
@@ -138,13 +114,11 @@ class App extends Component {
       }
       // Nasty, but works - must pass as string or BN to `fromWei` to avoid precision errors
       const eth_string = acc[cur.from].ethValue.toString()
-      const snt_string = acc[cur.from].sntValue.toString()
       const dai_string = acc[cur.from].daiValue.toString()
 
       const eth = myweb3.utils.fromWei(eth_string)
-      const snt = myweb3.utils.fromWei(snt_string)
       const dai = myweb3.utils.fromWei(dai_string)
-      acc[cur.from].usdValue = (parseFloat(eth) * ethusd) + (parseFloat(snt) * sntusd) + parseFloat(dai)
+      acc[cur.from].usdValue = (parseFloat(eth) * ethusd) + parseFloat(dai)
       return acc
     },{})
     all = Object.keys(all)
@@ -162,23 +136,18 @@ class App extends Component {
     const ETHtotal = eth.reduce((acc, cur) => {
       return acc.add(myweb3.utils.toBN(cur.value));
     }, new myweb3.utils.BN(0));
-    const SNTtotal = snt.reduce((acc, cur) => {
-      return acc.add(myweb3.utils.toBN(cur.value));
-    }, new myweb3.utils.BN(0));
     const DAItotal = dai.reduce((acc, cur) => {
       return acc.add(myweb3.utils.toBN(cur.value));
     }, new myweb3.utils.BN(0));
-    this.setState({ all, ETHtotal, SNTtotal, DAItotal })
+    this.setState({ all, ETHtotal, DAItotal })
   };
 
   getOracleData = async () => {
     const json = await jsonFetch(`${etherscanApiLinks.ETHUSDoracle}`);
-    const json2 = await jsonFetch('https://api.coinmarketcap.com/v2/ticker/1759/');
     const result = myweb3.eth.abi.decodeParameters(['uint256','bool'], json.result);
     const USDETHValue = result[1] ? myweb3.utils.fromWei(result[0]) : "Oracle False";
     this.setState({ 
-      USDETHValue,
-      USDSNTValue: json2.data.quotes.USD.price
+      USDETHValue
     });
   }
 
@@ -205,14 +174,10 @@ class App extends Component {
                 <div className="clear"></div>
                 <ul>
                   <li>{weiToFixed(this.state.ETHtotal.toString())} ETH</li>
-                  <li>{weiToFixed(this.state.SNTtotal.toString())} SNT </li>
                   <li>{weiToFixed(this.state.DAItotal.toString())} DAI</li>
                 </ul>
                 <h6>
                   {parseFloat(this.state.USDETHValue).toFixed(2)} USD/ETH Rate
-                </h6>
-                <h6>
-                  {parseFloat(this.state.USDSNTValue).toFixed(4)} USD/SNT Rate
                 </h6>
               </div>
               <div className="flex-column margin">
@@ -240,9 +205,6 @@ class App extends Component {
                   {item.from} donated 
                   {item.ethValue.gt(myweb3.utils.toBN(0)) && 
                     <b> {weiToFixed(item.ethValue)} ETH </b>
-                  }
-                  {item.sntValue.gt(myweb3.utils.toBN(0)) && 
-                    <b> {weiToFixed(item.sntValue)} SNT </b>
                   }
                   {item.daiValue.gt(myweb3.utils.toBN(0)) && 
                     <b> {weiToFixed(item.daiValue)} DAI </b>
