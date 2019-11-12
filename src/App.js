@@ -38,7 +38,7 @@ const etherscanApiLinks = {
     "https://api.etherscan.io/api?module=logs&action=getLogs&fromBlock=" + startBlock + "&toBlock=latest&address=" +
     DAIaddress + 
     "&topic0=0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef&" +
-    "topic2=" + myweb3.eth.abi.encodeParameter('uint256', donationAddress) + "&apikey" +
+    "topic2=" + myweb3.eth.abi.encodeParameter('uint256', donationAddress) + "&apikey=" +
     apiKey,
 };
 
@@ -173,12 +173,12 @@ class App extends Component {
 
   getOracleData = async () => {
     const json = await jsonFetch(`${etherscanApiLinks.ETHUSDoracle}`);
-    const json2 = await jsonFetch('https://api.coinmarketcap.com/v2/ticker/1759/');
+    const json2 = await jsonFetch('https://api.coingecko.com/api/v3/coins/status?localization=false&tickers=false&community_data=false&developer_data=false&sparkline=false');
     const result = myweb3.eth.abi.decodeParameters(['uint256','bool'], json.result);
     const USDETHValue = result[1] ? myweb3.utils.fromWei(result[0]) : "Oracle False";
     this.setState({ 
       USDETHValue,
-      USDSNTValue: json2.data.quotes.USD.price
+      USDSNTValue: json2.market_data.current_price.usd
     });
   }
 
