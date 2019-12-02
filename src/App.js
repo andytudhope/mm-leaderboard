@@ -11,10 +11,10 @@ window.web3 = myweb3
 const donationAddress = "0xd927aC955e44273C4a55c65B84D5b5b752d9F5C6"
 const apiKey = "38BVA9GPQ7V58SYK2FK4KM9MJ3B8DPWVHJ"; //replace with your own key
 
-const DAIaddress = '0x89d24A6b4CcB1B6fAA2625fE562bDD9a23260359';
+const DAIaddress = '0x6B175474E89094C44Da98b954EedeAC495271d0F';
 const MakerOracle = '0x729D19f657BD0614b4985Cf1D82531c67569197B';
 
-const startBlock = 6710000;
+const startBlock = 8928000;
 
 const etherscanApiLinks = {
   intTx:
